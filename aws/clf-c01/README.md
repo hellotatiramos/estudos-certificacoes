@@ -1,6 +1,10 @@
 # AWS Certified Cloud Practitioner - CLF-C02
 
-## Amazon Cognito
+
+<div align="center">
+<img src="https://github.com/hellotatiramos/estudos-certificacoes/assets/158481113/9942753b-3a1f-48e7-8d5a-f67a2d0d90c2" width="700px" />
+</div>
+
 
 O Amazon Cognito é um serviço da Amazon Web Services (AWS) que facilita a adição de autenticação, autorização e gerenciamento de usuários às suas aplicações web e móveis. Ele permite que você gerencie o login dos usuários, autenticação, bem como o controle de acesso às partes do seu aplicativo. Vou explicar de uma maneira simples os principais pontos:
 
