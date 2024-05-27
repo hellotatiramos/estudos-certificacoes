@@ -5,6 +5,25 @@
 <img src="https://github.com/hellotatiramos/estudos-certificacoes/assets/158481113/8513ce66-f3fd-4d9f-9350-0e14b20292b9" width="700px" />
 </div>
 
+## Control Plane 
+O "control plane" (plano de controle) refere-se às operações administrativas e de gerenciamento de um serviço. No caso do DynamoDB, essas operações incluem:
+
+* **CreateTable:** Cria uma nova tabela no DynamoDB.
+* **DescribeTable:** Obtém informações sobre a estrutura e configurações de uma tabela.
+* **ListTables:** Lista todas as tabelas em uma conta do DynamoDB.
+* **UpdateTable:** Atualiza as configurações de uma tabela existente, como throughput provisionado, índices ou definições de atributo.
+* **DeleteTable:** Exclui uma tabela do DynamoDB.
+
+## Data Plane
+O "data plane" (plano de dados) refere-se às operações relacionadas à manipulação dos dados propriamente ditos, ou seja, a leitura e escrita dos dados armazenados no DynamoDB. Essas operações são muito mais frequentes que as operações do control plane e incluem:
+
+* **PutItem:** Insere um único item ou substitui um item existente em uma tabela.
+* **BatchWriteItem:** Insere até 25 itens em uma ou mais tabelas em uma única chamada.
+* **GetItem:** Recupera um item de uma tabela com base na chave primária.
+* **BatchGetItem:** Recupera até 100 itens de uma ou mais tabelas em uma única chamada.
+* **UpdateItem:** Atualiza um atributo de um item existente em uma tabela.
+* **DeleteItem:** Exclui um item de uma tabela com base na chave primária.
+
 ## Chave de Partição (Partition Key)
 A chave de partição é um identificador único que determina a partição na qual o item será armazenado. Esta chave é obrigatória e deve ser exclusiva para cada item em uma tabela que usa apenas uma chave de partição (tabela de chave simples). A escolha da chave de partição é importante para distribuir uniformemente os dados e a carga de tráfego entre as partições.
 
