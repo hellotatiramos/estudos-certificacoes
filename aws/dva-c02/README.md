@@ -35,16 +35,19 @@ Considere uma tabela chamada `Orders` que armazena informações sobre pedidos, 
 Neste caso, `CustomerID` é a chave de partição e `OrderID` é a chave de classificação. Isso significa que os pedidos são organizados primeiro por `CustomerID` e, dentro de cada `CustomerID`, são classificados pelo `OrderID`.
 
 ## Consultas e Vantagens
-**Chave de Partição Única:** Consultas com base na chave de partição são rápidas e eficientes, pois o DynamoDB sabe exatamente em qual partição procurar.
+* **Chave de Partição Única:** Consultas com base na chave de partição são rápidas e eficientes, pois o DynamoDB sabe exatamente em qual partição procurar.
 
-### Exemplo de consulta:
+**Exemplo de consulta:**
 
-`response = table.get_item(Key={'UserID': '12345'})`
+```response = table.get_item(Key={'UserID': '12345'})```
 
-**Chave de Partição e Classificação:** Consultas podem filtrar e ordenar itens dentro da mesma partição, tornando-as mais flexíveis.
 
-### Exemplo de consulta:
+
+* **Chave de Partição e Classificação:** Consultas podem filtrar e ordenar itens dentro da mesma partição, tornando-as mais flexíveis.
+
+**Exemplo de consulta:**
 
 `response = table.query(
     KeyConditionExpression=Key('CustomerID').eq('123') & Key('OrderID').begins_with('00')
 )`
+
