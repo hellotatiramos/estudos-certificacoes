@@ -5,6 +5,15 @@
 <img src="https://github.com/hellotatiramos/estudos-certificacoes/assets/158481113/8513ce66-f3fd-4d9f-9350-0e14b20292b9" width="700px" />
 </div>
 
+## Principais Conceitos
+Tabelas: A unidade básica de armazenamento no DynamoDB. Cada tabela contém múltiplos itens e cada item é um conjunto de atributos.
+Itens: Análogos às linhas em um banco de dados relacional. Cada item é identificado de forma única por uma chave primária.
+Atributos: Análogos às colunas em um banco de dados relacional. São os dados associados a um item.
+Chave Primária: Pode ser uma chave de partição (hash) ou uma combinação de chave de partição e chave de classificação (hash-range).
+Índices Secundários: Permitem consultas eficientes usando atributos que não fazem parte da chave primária.
+
+# Operações Principais da API
+
 ## Control Plane 
 O "control plane" (plano de controle) refere-se às operações administrativas e de gerenciamento de um serviço. No caso do DynamoDB, essas operações incluem:
 
@@ -70,3 +79,10 @@ Neste caso, `CustomerID` é a chave de partição e `OrderID` é a chave de clas
     KeyConditionExpression=Key('CustomerID').eq('123') & Key('OrderID').begins_with('00')
 )`
 
+## Características Avançadas
+
+Escalabilidade Automática: DynamoDB ajusta automaticamente a capacidade de leitura e escrita da tabela para acomodar mudanças de tráfego.
+Consistência: Oferece consistência eventual e consistência forte nas leituras.
+Streams: DynamoDB Streams captura uma sequência de mudanças em uma tabela, permitindo processamentos de eventos em tempo real.
+Transações: Permite realizar operações atômicas em múltiplos itens em uma ou mais tabelas.
+Segurança: Integração com AWS Identity and Access Management (IAM) para controle de acesso e criptografia de dados em trânsito e em repouso.
