@@ -2,7 +2,7 @@
 
 ## Amazon DynamoDB
 <div align="center">
-<img src="https://github.com/hellotatiramos/estudos-certificacoes/assets/158481113/940cfa5f-454b-48ef-a8c6-efd8083b6c5a" width="700px" />
+<img src="https://github.com/hellotatiramos/estudos-certificacoes/assets/158481113/8513ce66-f3fd-4d9f-9350-0e14b20292b9" width="700px" />
 </div>
 
 Características: 
