@@ -204,3 +204,55 @@ response = table.query(
 * **Streams:** DynamoDB Streams captura uma sequência de mudanças em uma tabela, permitindo processamentos de eventos em tempo real.
 * **Transações:** Permite realizar operações atômicas em múltiplos itens em uma ou mais tabelas.
 * **Segurança:** Integração com AWS Identity and Access Management (IAM) para controle de acesso e criptografia de dados em trânsito e em repouso.
+
+## Modelos de consistência de leitura
+
+O DynamoDB, um serviço de banco de dados NoSQL gerenciado pela AWS, oferece dois modelos de consistência de leitura para garantir a integridade dos dados: a leitura fortemente consistente (strongly consistent read) e a leitura eventualmente consistente (eventually consistent read). Esses modelos diferem em termos de desempenho, custo e garantias de consistência dos dados.
+
+Leitura Eventualmente Consistente
+A leitura eventualmente consistente é o padrão no DynamoDB e é a mais usada por causa de seu melhor desempenho e menor custo em comparação com a leitura fortemente consistente. Nesse modelo, quando uma leitura é realizada, a resposta pode não refletir imediatamente o resultado de uma operação de escrita recente. No entanto, os dados eventualmente se tornam consistentes em um curto período de tempo (normalmente dentro de um segundo).
+
+Características:
+Performance: Maior throughput e menor latência.
+Custo: Menor custo de leitura em termos de unidades de leitura.
+Consistência: Pode retornar dados desatualizados se uma gravação recente foi realizada.
+Leitura Fortemente Consistente
+A leitura fortemente consistente garante que uma leitura reflete o resultado de todas as gravações que receberam uma confirmação bem-sucedida antes da leitura. Ou seja, uma leitura fortemente consistente sempre retorna os dados mais atualizados e confirmados.
+
+Características:
+Performance: Menor throughput e maior latência em comparação com a leitura eventualmente consistente.
+Custo: Maior custo de leitura em termos de unidades de leitura.
+Consistência: Garante a leitura dos dados mais recentes e confirmados.
+Comparação dos Modelos
+Característica	Leitura Eventualmente Consistente	Leitura Fortemente Consistente
+Performance	Maior throughput, menor latência	Menor throughput, maior latência
+Custo	Menor	Maior
+Consistência	Pode ser desatualizada	Sempre atualizada
+Uso típico	Aplicações que podem tolerar dados levemente desatualizados	Aplicações que precisam de dados sempre consistentes
+Considerações Práticas
+Escolha de Consistência: A escolha entre esses modelos deve ser baseada nos requisitos específicos de sua aplicação. Se a aplicação pode tolerar leituras que não estão imediatamente atualizadas (como em muitos cenários de análise de dados, dashboards, etc.), a leitura eventualmente consistente é mais adequada. No entanto, se a aplicação exige que as leituras reflitam as últimas gravações confirmadas (como em sistemas de transações financeiras, inventário em tempo real, etc.), a leitura fortemente consistente é a melhor opção.
+
+Custo e Desempenho: Em sistemas de alta carga, optar por leituras eventualmente consistentes pode resultar em economias significativas e maior desempenho, enquanto a leitura fortemente consistente, embora mais cara, oferece a garantia necessária para aplicações críticas.
+
+Exemplo de Uso
+Ao configurar uma operação de leitura no DynamoDB, a escolha do modelo de consistência pode ser feita especificando o parâmetro ConsistentRead na API de leitura do DynamoDB. Por exemplo:
+
+python
+Copiar código
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('MinhaTabela')
+
+# Leitura eventualmente consistente
+response = table.get_item(
+    Key={'MeuID': '123'}
+)
+
+# Leitura fortemente consistente
+response = table.get_item(
+    Key={'MeuID': '123'},
+    ConsistentRead=True
+)
+Conclusão
+O DynamoDB oferece flexibilidade com seus modelos de consistência, permitindo que os desenvolvedores escolham entre leitura eventualmente consistente e leitura fortemente consistente conforme as necessidades específicas de suas aplicações. Essa flexibilidade ajuda a equilibrar a necessidade de desempenho, custo e integridade dos dados em diferentes cenários de uso.
