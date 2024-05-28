@@ -135,9 +135,9 @@ Os tipos de conjunto permitem armazenar coleções não ordenadas de valores ún
 * Representa um conjunto de dados binários.
 * Exemplo:
   
-```json
+`
 [b'\x01', b'\x02', b'\x03']
-```
+`
 
 **Resumo**
 
