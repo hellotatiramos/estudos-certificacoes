@@ -553,3 +553,406 @@ for item in response['Items']:
 
 #### Conclusão
 Entender as diferenças entre `Query` e `Scan` no DynamoDB é essencial para otimizar o desempenho e o custo de suas operações de leitura. `Query`  é a escolha preferida para acessos rápidos e eficientes quando se conhece a chave de partição, enquanto `Scan` é usado em cenários onde uma varredura completa da tabela é necessária. Escolher a operação correta pode fazer uma grande diferença na eficiência e escalabilidade de sua aplicação.
+
+## DynamoDB - Índices
+
+No DynamoDB, os índices são utilizados para melhorar a eficiência das consultas e fornecer maneiras alternativas de acessar os dados. Existem dois tipos principais de índices: Local Secondary Index (LSI) e Global Secondary Index (GSI). Vamos explorar cada um deles em detalhes.
+
+### Local Secondary Index (LSI)
+Um Local Secondary Index (LSI) é um índice alternativo que você pode definir para uma tabela no DynamoDB e que usa a mesma chave de partição que a tabela principal, mas permite a criação de uma chave de classificação diferente. Os LSIs são definidos no momento da criação da tabela.
+
+#### Características do LSI:
+
+**1. Chave de Partição:**
+
+* Utiliza a mesma chave de partição que a tabela principal.
+
+**2. Chave de Classificação:**
+
+* Permite definir uma chave de classificação diferente.
+  
+**3. Consistência de Dados:**
+
+* Oferece leituras fortemente consistentes, além de leituras eventualmente consistentes.
+
+**4. Tamanho Máximo:**
+
+* A tabela e todos os seus LSIs juntos não podem exceder 10 GB por chave de partição.
+
+**5. Uso Típico:**
+
+* Utilizado para criar consultas eficientes que exigem diferentes chaves de classificação, mantendo a mesma chave de partição.
+
+#### Exemplo de LSI:
+
+```python
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+
+table = dynamodb.create_table(
+    TableName='MinhaTabela',
+    KeySchema=[
+        {
+            'AttributeName': 'UserId',
+            'KeyType': 'HASH'  # Chave de Partição
+        },
+        {
+            'AttributeName': 'Timestamp',
+            'KeyType': 'RANGE'  # Chave de Classificação
+        }
+    ],
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'UserId',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'Timestamp',
+            'AttributeType': 'N'
+        },
+        {
+            'AttributeName': 'Status',
+            'AttributeType': 'S'
+        }
+    ],
+    LocalSecondaryIndexes=[
+        {
+            'IndexName': 'StatusIndex',
+            'KeySchema': [
+                {
+                    'AttributeName': 'UserId',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'Status',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'  # Inclui todos os atributos
+            }
+        }
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+    }
+)
+```
+
+### Global Secondary Index (GSI)
+Um Global Secondary Index (GSI) é um índice alternativo que pode usar uma chave de partição e uma chave de classificação diferentes daquelas usadas na tabela principal. Os GSIs podem ser adicionados a qualquer momento após a criação da tabela.
+
+#### Características do GSI:
+
+**1.Chave de Partição:**
+* Pode usar uma chave de partição diferente da tabela principal.
+  
+**2.Chave de Classificação:**
+* Pode usar uma chave de classificação diferente da tabela principal.
+
+**3.Consistência de Dados:**
+* Suporta apenas leituras eventualmente consistentes.
+
+**4.Capacidade Independente:**
+* A capacidade de leitura e escrita do GSI é provisionada separadamente da tabela principal.
+
+**5.Uso Típico:**
+* Utilizado para consultas que requerem acesso rápido e eficiente com base em diferentes atributos.
+  
+#### Exemplo de GSI:
+
+```python
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+
+table = dynamodb.create_table(
+    TableName='MinhaTabela',
+    KeySchema=[
+        {
+            'AttributeName': 'UserId',
+            'KeyType': 'HASH'  # Chave de Partição
+        },
+        {
+            'AttributeName': 'Timestamp',
+            'KeyType': 'RANGE'  # Chave de Classificação
+        }
+    ],
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'UserId',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'Timestamp',
+            'AttributeType': 'N'
+        },
+        {
+            'AttributeName': 'Email',
+            'AttributeType': 'S'
+        }
+    ],
+    GlobalSecondaryIndexes=[
+        {
+            'IndexName': 'EmailIndex',
+            'KeySchema': [
+                {
+                    'AttributeName': 'Email',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'Timestamp',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'  # Inclui todos os atributos
+            },
+            'ProvisionedThroughput': {
+                'ReadCapacityUnits': 10,
+                'WriteCapacityUnits': 10
+            }
+        }
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+    }
+)
+```
+
+### Diferenças entre LSI e GSI
+
+| Característica |	LSI |	GSI |
+| ------|-----|-----|
+| Chave de Partição |	Igual à tabela principal |	Diferente da tabela principal |
+| Chave de Classificação |	Diferente da tabela | principal	Diferente da tabela principal |
+| Leitura Consistente |	Suporta leitura fortemente consistente |	Apenas leitura eventualmente consistente |
+| Capacidade de Acesso |	Compartilhada com a tabela principal |	Provisionada separadamente |
+| Limitação de Tamanho |	10 GB por chave de partição |	Sem limitação específica |
+| Criação |	No momento da criação da tabela |	Pode ser criado a qualquer momento |
+| Aplicação Típica |	Acesso com a mesma chave de partição, mas diferentes chaves de classificação |	Acesso com diferentes chaves de partição e classificação |
+
+### Conclusão
+Os índices no DynamoDB, LSI e GSI, oferecem flexibilidade para otimizar consultas e acessar dados de diferentes maneiras. LSIs são úteis para consultas que exigem diferentes chaves de classificação mantendo a mesma chave de partição, enquanto GSIs permitem a criação de índices completamente independentes, usando diferentes chaves de partição e classificação, proporcionando maior flexibilidade para consultas complexas e escaláveis. A escolha entre LSI e GSI depende dos requisitos específicos de desempenho, consistência e acesso aos dados da sua aplicação.
+
+
+## Exemplos Práticos de Quando Usar LSI e GSI
+Para entender melhor quando usar Local Secondary Index (LSI) e Global Secondary Index (GSI) no DynamoDB, vamos explorar alguns exemplos práticos.
+
+### Exemplo de Uso de LSI
+**Cenário:** Uma aplicação de blog onde os usuários podem criar posts e queremos consultar os posts por data e por status (publicado, rascunho, etc.) para um usuário específico.
+
+**Tabela Principal:**
+
+* **Tabela:** BlogPosts
+* **Chave de Partição:** UserId (ID do usuário)
+* **Chave de Classificação:** PostDate (Data da publicação)
+
+**Necessidade:** Consultar todos os posts de um usuário em ordem cronológica e também filtrar posts pelo status (publicado, rascunho, etc.).
+
+**Solução:** Usar um LSI para permitir consultas com base em um atributo adicional Status.
+
+#### Definição da Tabela com LSI:
+
+```python
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+
+table = dynamodb.create_table(
+    TableName='BlogPosts',
+    KeySchema=[
+        {
+            'AttributeName': 'UserId',
+            'KeyType': 'HASH'  # Chave de Partição
+        },
+        {
+            'AttributeName': 'PostDate',
+            'KeyType': 'RANGE'  # Chave de Classificação
+        }
+    ],
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'UserId',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'PostDate',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'Status',
+            'AttributeType': 'S'
+        }
+    ],
+    LocalSecondaryIndexes=[
+        {
+            'IndexName': 'StatusIndex',
+            'KeySchema': [
+                {
+                    'AttributeName': 'UserId',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'Status',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'  # Inclui todos os atributos
+            }
+        }
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+    }
+)
+```
+
+#### Consultas Usando LSI:
+
+* **Consultar posts por data:**
+```python
+response = table.query(
+    KeyConditionExpression=Key('UserId').eq('user123') & Key('PostDate').between('2023-01-01', '2023-12-31')
+)
+```
+
+* **Consultar posts por status:**
+```python
+response = table.query(
+    IndexName='StatusIndex',
+    KeyConditionExpression=Key('UserId').eq('user123') & Key('Status').eq('published')
+)
+```
+
+### Exemplo de Uso de GSI
+**Cenário:** Uma aplicação de e-commerce onde queremos consultar produtos por categoria e também por vendedor. A tabela principal é baseada no ID do produto.
+
+**Tabela Principal:**
+
+* **Tabela:** Products
+* **Chave de Partição:** ProductId (ID do produto)
+* **Atributos:** Category (Categoria), SellerId (ID do vendedor)
+
+**Necessidade:** Consultar produtos por categoria e também listar todos os produtos de um vendedor específico.
+
+**Solução:** Usar GSIs para permitir consultas com base em `Category` e `SellerId`.
+
+#### Definição da Tabela com GSIs:
+
+```python
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+
+table = dynamodb.create_table(
+    TableName='Products',
+    KeySchema=[
+        {
+            'AttributeName': 'ProductId',
+            'KeyType': 'HASH'  # Chave de Partição
+        }
+    ],
+    AttributeDefinitions=[
+        {
+            'AttributeName': 'ProductId',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'Category',
+            'AttributeType': 'S'
+        },
+        {
+            'AttributeName': 'SellerId',
+            'AttributeType': 'S'
+        }
+    ],
+    GlobalSecondaryIndexes=[
+        {
+            'IndexName': 'CategoryIndex',
+            'KeySchema': [
+                {
+                    'AttributeName': 'Category',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'ProductId',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'
+            },
+            'ProvisionedThroughput': {
+                'ReadCapacityUnits': 10,
+                'WriteCapacityUnits': 5
+            }
+        },
+        {
+            'IndexName': 'SellerIndex',
+            'KeySchema': [
+                {
+                    'AttributeName': 'SellerId',
+                    'KeyType': 'HASH'
+                },
+                {
+                    'AttributeName': 'ProductId',
+                    'KeyType': 'RANGE'
+                }
+            ],
+            'Projection': {
+                'ProjectionType': 'ALL'
+            },
+            'ProvisionedThroughput': {
+                'ReadCapacityUnits': 10,
+                'WriteCapacityUnits': 5
+            }
+        }
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 5,
+        'WriteCapacityUnits': 5
+    }
+)
+```
+
+#### Consultas Usando GSIs:
+
+* **Consultar produtos por categoria:**
+```python
+response = table.query(
+    IndexName='CategoryIndex',
+    KeyConditionExpression=Key('Category').eq('Electronics')
+)
+```
+
+* **Consultar produtos por vendedor:**
+```python
+response = table.query(
+    IndexName='SellerIndex',
+    KeyConditionExpression=Key('SellerId').eq('seller123')
+)
+```
+
+#### Conclusão
+
+**Quando Usar LSI:**
+
+* Quando você precisa de uma chave de classificação adicional para consultar os dados.
+* A chave de partição permanece a mesma que a tabela principal.
+* Exemplos incluem casos onde você deseja consultar dados ordenados por diferentes critérios, como status ou data.
+
+**Quando Usar GSI:**
+
+* Quando você precisa de uma chave de partição diferente da tabela principal para suas consultas.
+* Pode ser adicionado após a criação da tabela.
+* Útil para criar consultas flexíveis e independentes da estrutura original da tabela, como consultar por atributos como categoria ou vendedor.
+
+`
+Escolher entre LSI e GSI depende dos requisitos específicos de consulta e acesso aos dados da sua aplicação. LSIs são ótimos para consultas adicionais mantendo a mesma chave de partição, enquanto GSIs oferecem maior flexibilidade para criar consultas completamente novas e independentes.
+`
